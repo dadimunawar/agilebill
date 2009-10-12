@@ -10,5 +10,5 @@
     $agi->text2wav("Please enter your PIN and press the pound key.");
     $result = $agi->get_data('beep', 5000, 20);
     $keys = $result['result'];
-    $agi->text2wave("You entered $keys");
-    
+    $agi->text2wav("You entered $keys");
+    $agi->hangup();
