@@ -7,6 +7,7 @@
     $agi = new AGI();
     // answer the call
     $agi->answer();
-    $agi->text2wav("This is a test");
+    // $agi->text2wav("This is a test");
+    $agi->say_digits(1234)
     
-    
+?>
