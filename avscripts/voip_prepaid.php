@@ -8,7 +8,7 @@
     $agi = new AGI();
     // answer the call
     $agi->answer();
-    //$agi->say_phonetic('Please enter your PIN followed by the pound key after the beep');
+    $agi->say_phonetic('Please enter your PIN followed by the pound key after the beep');
 
     $result = $agi->get_data('beep', 30000, 11);
     $keys = $result['result'];
