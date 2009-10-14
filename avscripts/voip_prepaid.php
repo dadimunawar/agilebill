@@ -17,6 +17,7 @@
 
     $result = $agi->get_data('beep', 30000, 11);
     $pin = $result['result'];
+    $result = $agi->say_digits($pin);
     // grab the pin from the db
     $stmt = $dbh->prepare("SELECT * FROM ".AGILE_DB_PREFIX. "voip_prepaid WHERE pin = ?");
     if($stmt->execute($pin)) {
