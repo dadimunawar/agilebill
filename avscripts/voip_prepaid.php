@@ -13,17 +13,24 @@
     $agi = new AGI();
     // answer the call
     $agi->answer();
-    $agi->text2wav('Please enter your PIN followed by the pound key after the beep');
-
+    $agi->text2wav('Please enter your PIN followed after the beep');
+    
     $result = $agi->get_data('beep', 30000, 11);
     $pin = $result['result'];
     $result = $agi->say_digits($pin);
     // grab the pin from the db
-    $stmt = $dbh->prepare("SELECT * FROM ".AGILE_DB_PREFIX. "voip_prepaid WHERE pin = ?");
-    if($stmt->execute($pin)) {
-        while ($row = $stmt->fetch()) {
-            $agi->say_number($row['balance']);
-        }
+    $data['pin'] = $pin;
+    $sql = 'SELECT * FROM `' . AGILE_DB_PREFIX . 'voip_prepaid` WHERE `pin` = '."'$pin'";
+    // $stmt = $dbh->prepare("SELECT * FROM ".AGILE_DB_PREFIX. "voip_prepaid WHERE pin = ?");
+    // if($dbh->query($sql)) {
+    foreach($dbh->query($sql) as $row) {
+        $agi->stream_file('vm-youhave');
+        $agi->say_number($row['balance']);
+        $agi->stream_file('minutes');
     }
+    $agi->text2wav("Goodbye!");
+    // } else {
+    //     print 'nogo';
+    // }
 
     $agi->hangup();
