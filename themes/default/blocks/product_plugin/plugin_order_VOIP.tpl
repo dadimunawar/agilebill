@@ -1,7 +1,7 @@
 {$list->unserial($product.prod_plugin_data, "plugin_data")} 
  
 {if $plugin_data.virtual_number || $plugin_data.provision_enabled || $plugin_data.fax_account || $plugin_data.remote_call_forwarding}
-<p>Select your country: <br>
+<!-- <p>Select your country: <br>
 {$method->exe_noauth('voip','menu_countries')} </p>
 <div id="div_state" {style_hide}>
 <p>Select your State: <br>
@@ -10,12 +10,16 @@
 <div id="div_location" {style_hide}>
 <p>Select your Location:<br> 
   <select id="voip_location" name="attr[location]" onChange="voipChangeLocation(this.value)"></select></p>
-</div>
+</div> -->
+<p>Select your area code: <br>
+	{$method->exe_noauth('voip', 'menu_npas')}</p>
+	
+</p>
 <div id="div_station" {style_hide}>
 <p>Select your Number:<br> 
   <select id="voip_station" name="attr[station]"></select></p>
 </div> 
-
+<input type="hidden" name="fromapi" value="1">
 {if $admin}
 <p>Ported Number:<br>
 <input type="text" id="voip_ported" name="attr[ported]"></p>
@@ -51,7 +55,15 @@ function voipChangeCountry(code) {
 		document.getElementById('div_station').style.display='none';	
 	}
 }
-
+function voipChangeNPA(npa) {
+	menuClearOptions('voip_station');
+	if(npa != '') {
+		document.getElementById('div_station').style.display='block';
+		voipGetStationListByNPA(npa);
+	} else {
+		document.getElementById('div_station').style.display='none';
+	}
+}
 // change selected state
 function voipChangeState(state) { 
 	document.getElementById('div_location').style.display='block';
@@ -108,6 +120,18 @@ function voipGetStationList(location,country) {
   http.send(null);
 }
  
+// update Station list by NPA
+function voipGetStationListByNPA(npa) { 
+ var url = "ajax.php?do[]=voip:menu_station_npa&npa="+npa+"&id="+document.product_view.product_id.value;
+ http.open("GET", url, true); 
+ http.onreadystatechange = function() {
+    if (http.readyState == 4) { 
+      try { eval(http.responseText) } catch(e) {} 
+    }
+  } 
+  http.send(null);
+}
+
 function product_plugin_validate() 
 {	 
 {/literal}{if $admin}{literal}

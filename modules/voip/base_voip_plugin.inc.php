@@ -81,7 +81,7 @@ class base_voip_plugin extends base_product_plugin
 		if ($v->e164($did, $e164, $cc, $npa, $nxx)) 
 		{
 			if ($ported) return true;
-				
+
 			// verify this did is in voip_pool, and is not assigned to an account, and is not reserved 
 			if ($cc == '1') {
 				$station = substr($e164, 8);
@@ -96,17 +96,34 @@ class base_voip_plugin extends base_product_plugin
 				$sql = sqlSelect($db,"voip_pool","*",
 					"(date_reserved IS NULL OR date_reserved=0) AND (account_id IS NULL OR account_id=0) AND country_code=$cc AND station=$station"); 	 
 			} 
+			if (isset($VAR['fromapi']) && $VAR['attr']['fromapi'] == 1) {
+				// pull number in
+				$rs = & $db->Execute(sqlSelect($db,"voip_did_plugin","*","plugin = 'ICALL'"));
+				$plugin = $rs->fields['plugin'];
+				$plugin_id = $rs->fields['id'];
+			  	// Get the plugin details and load plugin as an object
+			  	$file = PATH_PLUGINS.'voip_did/'.$plugin.'.php';
+			  	if(is_file($file)) {
+			  		include_once($file); 
+			  		eval('$plg = new plgn_voip_did_'.$plugin.';'); 
+					if(is_object($plg)) {
+						$plg->id = $plugin_id;
+						$res = $plg->pullDID($e164, $cc, $npa, $nxx, $station);
+					}
+				}
+					
+			}
 			$rs = $db->Execute($sql);
 			if($rs && $rs->RecordCount() > 0) {
 				$did_id = $rs->fields['id'];
 				$plugin_id = $rs->fields['voip_did_plugin_id']; 
 			} else { 
 				return "Sorry, the selected number is not available or has been removed from our system, please go back and select another.";
-			}  
+			}
+
 		} else {
 		 	return "The format for the provided number is incorrect.";
 		}
-		
 		// get the id of the current country calling code
 		$country_id = 0;
 		$country = $db->Execute($sql = sqlSelect($db,"voip_iso_country_code_map","iso_country_code","country_code = $cc"));				

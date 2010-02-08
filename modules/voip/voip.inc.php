@@ -1092,6 +1092,7 @@ class voip
 			}
 			$count++;
 		}
+		var_dump($did_plugins);
 		if($count)
 			echo $js;
 		else
@@ -1230,7 +1231,67 @@ class voip
 		ob_end_flush();
 		return true; 
 	}
+	function menu_npas($VAR) {
+		header('Pragma: no-cache');
+		header('Cache-Control: no-cache, must-revalidate');
+		
+		$out = '<select id="voip_npa" name="attr[npa]" onChange="voipChangeNPA(this.value)">';
+		$out .= '<option value="" selected>--- Pick an Area Code ---</option>';	 
+		
+		$db = &DB();
+		$rs = & $db->Execute(sqlSelect($db,"voip_did_plugin","*","plugin = 'ICALL'"));
+		$plugin = $rs->fields['plugin'];
+		$plugin_id = $rs->fields['id'];
+	  	// Get the plugin details and load plugin as an object
+	  	$file = PATH_PLUGINS.'voip_did/'.$plugin.'.php';
+	  	if(is_file($file)) {
+	  		include_once($file); 
+	  		eval('$plg = new plgn_voip_did_'.$plugin.';'); 
+				if(is_object($plg)) {
+					$plg->id = $plugin_id;
+					$npas = $plg->getNPAs();
+					foreach($npas as $npa) {
+						$out .= '<option value="' . $npa->npa . '">' . $npa->npa . ' - ' . $npa->state .'</option>';					
+					}
+				}
+			}
+		$out .= '</select>';
+		// var_dump($js);
+		echo $out;
+		
+	}
+	function menu_station_npa($VAR) {
+		header('Pragma: no-cache');
+		header('Cache-Control: no-cache, must-revalidate');
+		
+		$js = 'menuClearOptions("voip_station"); ';
+		
+		$db = &DB();
+		$rs = & $db->Execute(sqlSelect($db,"voip_did_plugin","*","plugin = 'ICALL'"));
+		$plugin = $rs->fields['plugin'];
+		$plugin_id = $rs->fields['id'];
+	  	// Get the plugin details and load plugin as an object
+	  	$file = PATH_PLUGINS.'voip_did/'.$plugin.'.php';
+	  	if(is_file($file)) {
+	  		include_once($file); 
+	  		eval('$plg = new plgn_voip_did_'.$plugin.';'); 
+				if(is_object($plg)) {
+					$plg->id = $plugin_id;
+					$dids = $plg->retDIDs($VAR['npa']);
+					if(count($dids) === 0) {
+						$js = "document.getElementById('div_station').style.display='none';";
+						$js .= "alert('Sorry, no DIDs for that area code are available at this time. Please check again later.');";
 
+					}
+					foreach($dids as $did) {
+						$js .= " menuAppendOption('voip_station', '1" . $did ."', '1 $did'); ";					
+					}
+				}
+			}
+			
+		echo $js;
+		
+	}
 	/** Returns the fields from voip_pool for a given DID entry.
 	*/
 	function get_did_e164($did)
