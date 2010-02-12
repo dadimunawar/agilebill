@@ -46,7 +46,7 @@ class plgn_voip_did_ICALL
 		$cc = ""; $npa = ""; $nxx = ""; $e164 = "";
 		if ($v->e164($this->did, $e164, $cc, $npa, $nxx)) {
 			$station = substr($e164, 8);
-			$result = $this->process('purchaseDID', array('number' => $npa.$nxx.$station);
+			$result = $this->process('purchaseDID', array('number' => $npa.$nxx.$station));
 		}
 
 		if($result == true)
