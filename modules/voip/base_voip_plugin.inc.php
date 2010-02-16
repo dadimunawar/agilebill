@@ -96,7 +96,7 @@ class base_voip_plugin extends base_product_plugin
 				$sql = sqlSelect($db,"voip_pool","*",
 					"(date_reserved IS NULL OR date_reserved=0) AND (account_id IS NULL OR account_id=0) AND country_code=$cc AND station=$station"); 	 
 			} 
-			if (isset($VAR['fromapi']) && $VAR['attr']['fromapi'] == 1) {
+			if (isset($VAR['fromapi']) && $VAR['fromapi'] == 1) {
 				// pull number in
 				$rs = & $db->Execute(sqlSelect($db,"voip_did_plugin","*","plugin = 'ICALL'"));
 				$plugin = $rs->fields['plugin'];

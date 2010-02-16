@@ -1092,7 +1092,7 @@ class voip
 			}
 			$count++;
 		}
-		var_dump($did_plugins);
+		// var_dump($did_plugins);
 		if($count)
 			echo $js;
 		else
